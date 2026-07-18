@@ -4,27 +4,24 @@
 
 ## Overview
 
-The eBPF Network Monitor is a kernel module that utilizes eBPF to monitor network activity, providing valuable insights into packet flow and network metrics. This project addresses the need for a lightweight and efficient network monitoring solution that can be easily integrated into existing systems. By leveraging the power of eBPF, this module offers a unique perspective on network behavior, enabling administrators to identify potential bottlenecks, troubleshoot issues, and optimize network performance.
+The eBPF Network Monitor is a kernel module that utilizes eBPF to monitor network activity, providing valuable insights into packet flow and network metrics. This project addresses the need for a lightweight and efficient network monitoring solution that can be easily integrated into existing systems. By leveraging the power of eBPF, this module offers a unique perspective on network behavior, enabling administrators to optimize network performance and troubleshoot issues more effectively.
 
 ## Features
-
-- **Real-time Packet Capture**: Capture and analyze network packets in real-time, providing detailed information on packet flow and network activity.
-- **Network Metrics**: Collect and display key network metrics, including packet counts, byte counts, and latency measurements.
-- **Customizable Filtering**: Configure filtering rules to focus on specific network traffic, such as by protocol, port, or IP address.
-- **User-space Tooling**: Utilize a user-space tool to interact with the eBPF program, enabling easy configuration and data visualization.
-- **Kernel Module**: Load the eBPF program as a kernel module, providing seamless integration with the kernel and efficient performance.
-- **Extensive Documentation**: Detailed documentation and API references for easy integration and customization.
-- **Highly Scalable**: Designed to handle high network traffic rates and large-scale networks.
-- **Easy Installation**: Simple installation process using standard kernel module loading tools.
+- **Network Packet Capture**: Captures and analyzes network packets to provide detailed insights into network activity.
+- **Traffic Analysis**: Breaks down network traffic by protocol, source, and destination to help identify patterns and anomalies.
+- **Real-time Monitoring**: Monitors network activity in real-time, providing immediate insights into changes in network behavior.
+- **Customizable Filtering**: Allows administrators to customize filtering rules to focus on specific network activity.
+- **Integration with eBPF Tools**: Integrates seamlessly with eBPF tools and frameworks to provide a comprehensive network monitoring solution.
+- **Low Overhead**: Designed to have minimal overhead on system resources, making it suitable for deployment on high-traffic networks.
+- **Scalability**: Built to handle large networks and high volumes of traffic.
 
 ## Getting Started
 
 ### Prerequisites
 
-- Linux kernel 4.15 or later
-- eBPF support enabled in the kernel
-- GCC compiler version 9 or later
-- Make tool version 4.2 or later
+* Linux kernel version 5.10 or later
+* eBPF framework and tools installed (e.g., bpftrace, bpftool)
+* C compiler (gcc or clang)
 
 ### Installation
 
@@ -33,65 +30,56 @@ The eBPF Network Monitor is a kernel module that utilizes eBPF to monitor networ
 git clone https://github.com/your-username/ebpf-network-monitor.git
 
 # Build the kernel module
-make -C /lib/modules/$(uname -r)/build M=$(pwd) modules
+cd ebpf-network-monitor/src
+make
 
 # Load the kernel module
 sudo insmod nethook.ko
-
-# Activate the eBPF program
-sudo echo "attach { /sys/fs/bpf/nethook }" > /sys/fs/bpf/nethook/attach
 ```
 
 ### Usage
 
 ```bash
-# View network metrics
-sudo cat /sys/fs/bpf/nethook/metrics
+# Start the network monitor
+sudo ./nethook --start
 
-# View packet capture data
-sudo cat /sys/fs/bpf/nethook/packets
+# View network activity
+sudo ./nethook --list
 
-# Configure filtering rules
-sudo echo "filter { /sys/fs/bpf/nethook/filter }" > /sys/fs/bpf/nethook/filter
+# Filter network activity by protocol
+sudo ./nethook --filter proto=TCP
 ```
 
 ## Architecture
 
-The eBPF Network Monitor consists of three primary components:
+The eBPF Network Monitor is structured into two main components:
 
-*   **src/bpf/nethook.c**: The eBPF program handling network hook, which captures network packets and collects metrics.
-*   **src/kmod/nethook.ko**: The kernel module for loading the eBPF program, providing seamless integration with the kernel.
-*   **src/user/nethook.c**: The user-space tool for interacting with the eBPF program, enabling easy configuration and data visualization.
+* `src/bpf/nethook.c`: The kernel module implementation, responsible for capturing and analyzing network packets.
+* `src/user/nethook.c`: The user-space tool implementation, responsible for interacting with the kernel module and displaying network activity.
 
 ## API Reference
 
-The eBPF Network Monitor provides the following public interfaces:
+The eBPF Network Monitor provides a simple API for interacting with the kernel module. The following functions are available:
 
-*   **/sys/fs/bpf/nethook/attach**: Attach the eBPF program to the network hook.
-*   **/sys/fs/bpf/nethook/filter**: Configure filtering rules for packet capture.
-*   **/sys/fs/bpf/nethook/metrics**: View network metrics.
-*   **/sys/fs/bpf/nethook/packets**: View packet capture data.
+* `nethook_start()`: Starts the network monitor.
+* `nethook_list()`: Lists network activity.
+* `nethook_filter()`: Filters network activity by protocol.
 
 ## Testing
 
 ```bash
-# Run unit tests
-make -C /lib/modules/$(uname -r)/build M=$(pwd) clean
-make -C /lib/modules/$(uname -r)/build M=$(pwd) tests
-
-# Run integration tests
-sudo insmod nethook.ko
-sudo echo "attach { /sys/fs/bpf/nethook }" > /sys/fs/bpf/nethook/attach
-sudo cat /sys/fs/bpf/nethook/metrics
+# Run the test suite
+cd tests
+make test
 ```
 
 ## Contributing
 
-1.  Fork the repository
-2.  Create a feature branch
-3.  Commit changes
-4.  Push and open a PR
+1. Fork the repository
+2. Create a feature branch
+3. Commit changes
+4. Push and open a PR
 
 ## License
 
-MIT License
+The eBPF Network Monitor is licensed under the MIT License.
