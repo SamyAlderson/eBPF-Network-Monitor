@@ -1,0 +1,163 @@
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/bpf.h>
+#include <linux/elf.h>
+#include <linux/fs.h>
+#include <linux/mm.h>
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Your Name");
+MODULE_DESCRIPTION("eBPF Network Monitor kernel module");
+MODULE_ALIAS("nethook_ko");
+
+static int __init nethook_init(void)
+{
+    int err;
+
+    pr_info("nethook_ko: Initializing...\n");
+
+    err = bpf_load_program(&nethook_bpf, "nethook_bpf", BPF_PROG_TYPE_SCHED_CLS, 0, NULL, 0, 0);
+    if (err) {
+        pr_err("nethook_ko: Failed to load eBPF program: %d\n", err);
+        return err;
+    }
+
+    pr_info("nethook_ko: Initialization complete.\n");
+    return 0;
+}
+
+static void __exit nethook_exit(void)
+{
+    int err;
+
+    pr_info("nethook_ko: Unloading...\n");
+
+    err = bpf_detach_program(&nethook_bpf);
+    if (err) {
+        pr_err("nethook_ko: Failed to detach eBPF program: %d\n", err);
+    }
+
+    pr_info("nethook_ko: Unloaded.\n");
+}
+
+module_init(nethook_init);
+module_exit(nethook_exit);
+
+static struct bpf_program nethook_bpf = {
+    .prog_type = BPF_PROG_TYPE_SCHED_CLS,
+    .insn_cnt = 0,
+    .insns = NULL,
+};
+
+static struct file_operations nethook_fops = {
+    .owner = THIS_MODULE,
+    .open = nethook_open,
+    .release = nethook_release,
+    .read = nethook_read,
+    .write = nethook_write,
+};
+
+static int nethook_open(struct inode *inode, struct file *file)
+{
+    return 0;
+}
+
+static int nethook_release(struct inode *inode, struct file *file)
+{
+    return 0;
+}
+
+static ssize_t nethook_read(struct file *file, char __user *buf, size_t count, loff_t *ppos)
+{
+    return -EINVAL;
+}
+
+static ssize_t nethook_write(struct file *file, const char __user *buf, size_t count, loff_t *ppos)
+{
+    return -EINVAL;
+}
+```
+
+```c
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/bpf.h>
+#include <linux/elf.h>
+#include <linux/fs.h>
+#include <linux/mm.h>
+
+static int __init nethook_load_bpf(void)
+{
+    int err;
+    void *bpf_obj;
+
+    pr_info("nethook_ko: Loading eBPF object...\n");
+
+    err = bpf_load_object(&bpf_obj, "/sys/fs/bpf/nethook_bpf");
+    if (err) {
+        pr_err("nethook_ko: Failed to load eBPF object: %d\n", err);
+        return err;
+    }
+
+    pr_info("nethook_ko: eBPF object loaded.\n");
+    return 0;
+}
+
+static void __exit nethook_unload_bpf(void)
+{
+    int err;
+
+    pr_info("nethook_ko: Unloading eBPF object...\n");
+
+    err = bpf_unload_object(&nethook_bpf);
+    if (err) {
+        pr_err("nethook_ko: Failed to unload eBPF object: %d\n", err);
+    }
+
+    pr_info("nethook_ko: eBPF object unloaded.\n");
+}
+
+module_init(nethook_load_bpf);
+module_exit(nethook_unload_bpf);
+```
+
+```c
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/bpf.h>
+#include <linux/elf.h>
+#include <linux/fs.h>
+#include <linux/mm.h>
+
+static int __init nethook_bpf_init(void)
+{
+    int err;
+
+    pr_info("nethook_ko: Initializing eBPF program...\n");
+
+    err = bpf_prog_load("nethook_bpf", BPF_PROG_TYPE_SCHED_CLS, 0, NULL, 0, 0);
+    if (err) {
+        pr_err("nethook_ko: Failed to initialize eBPF program: %d\n", err);
+        return err;
+    }
+
+    pr_info("nethook_ko: eBPF program initialized.\n");
+    return 0;
+}
+
+static void __exit nethook_bpf_exit(void)
+{
+    int err;
+
+    pr_info("nethook_ko: Uninitializing eBPF program...\n");
+
+    err = bpf_prog_unload("nethook_bpf");
+    if (err) {
+        pr_err("nethook_ko: Failed to unload eBPF program: %d\n", err);
+    }
+
+    pr_info("nethook_ko: eBPF program unloaded.\n");
+}
+
+module_init(nethook_bpf_init);
+module_exit(nethook_bpf_exit);
